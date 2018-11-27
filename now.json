@@ -1,3 +1,5 @@
 {
-"alias": "firecondor"
+  "version": 2,
+  "alias": "firecondor",
+  "builds": [{ "src": "*.js", "use": "@now/node-server" }]
 }
