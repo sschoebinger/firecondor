@@ -1,27 +1,19 @@
-const app = require("express")();
+const express = require("express");
+const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
+
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
 app.post("/sendPush", (req, res) => {
-  io.emit("wdw", true);
-  setTimeout(() => io.emit("wdw", false), 5000);
+  io.emit("wdw", req.body);
+  setTimeout(() => io.emit("wdw", undefined), 5000);
   res.send();
 });
 
-io.on("connection", socket => {
-  console.log("a user connected");
 
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
-});
-
-server.listen(process.env.PORT || 4000, () => {
-  console.log(
-    `The server is running: http://localhost:${process.env.PORT || 4000}`
-  );
-});
+server.listen(process.env.PORT || 4000);

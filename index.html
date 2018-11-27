@@ -565,7 +565,6 @@
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 
     <script>
       const announce = function (street) {
@@ -582,23 +581,25 @@
         };
       }
 
+      const getHighway = function (streets) {
+        return streets.results[0];
+      }
+
       const getStreet = function(lng, lat) {
         const url = "https://geocoder.tilehosting.com/r/" + lat + "/" + lng + ".js?key=PEj49BAWgrQ5z674phDO";
-        
         return fetch(url)
           .then(response => response.json())
-          .then(streets => streets.results[0].street);
+          .then(getHighway)
+          .then(result => result.street);
       }
 
       document.addEventListener("DOMContentLoaded", function(event) {
         var socket = io();
 
-        socket.on("wdw", iswdw => {
-          document.body.style.backgroundColor = iswdw ? "red" : "#00c380";
-
-          if (iswdw) {
-            const lng = 49.03710;
-            const lat = 9.31650;
+        socket.on("wdw", wdw => {
+          document.body.style.backgroundColor = wdw ? "red" : "#00c380";
+          if (wdw) {
+            const {lng, lat} = wdw;
             getStreet(lng, lat).then(announce);
           }
         });
