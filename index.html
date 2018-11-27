@@ -599,7 +599,8 @@
         socket.on("wdw", wdw => {
           document.body.style.backgroundColor = wdw ? "red" : "#00c380";
           if (wdw) {
-            const {lng, lat} = wdw;
+            const lng = wdw.location.gps.longitude;
+            const lat = wdw.location.gps.latitude;
             getStreet(lng, lat).then(announce);
           }
         });
