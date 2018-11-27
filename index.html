@@ -568,12 +568,39 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 
     <script>
-      $(() => {
+      const announce = function (street) {
+        if ('speechSynthesis' in window) {
+          const text = "Achtung! Falschfahrer auf der " + street;
+          const msg = new SpeechSynthesisUtterance();
+          const voices = window.speechSynthesis.getVoices();
+
+          msg.rate = 1;
+          msg.pitch = 1;
+          msg.text = text;
+
+          speechSynthesis.speak(msg); 
+        };
+      }
+
+      const getStreet = function(lng, lat) {
+        const url = "https://geocoder.tilehosting.com/r/" + lat + "/" + lng + ".js?key=PEj49BAWgrQ5z674phDO";
+        
+        return fetch(url)
+          .then(response => response.json())
+          .then(streets => streets.results[0].street);
+      }
+
+      document.addEventListener("DOMContentLoaded", function(event) {
         var socket = io();
 
         socket.on("wdw", iswdw => {
-          const color = iswdw ? "red" : "#00c380";
-          $("body").css("background-color", color);
+          document.body.style.backgroundColor = iswdw ? "red" : "#00c380";
+
+          if (iswdw) {
+            const lng = 49.03710;
+            const lat = 9.31650;
+            getStreet(lng, lat).then(announce);
+          }
         });
       });
     </script>
