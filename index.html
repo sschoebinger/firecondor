@@ -645,11 +645,11 @@
         const json = xmlToJson(xmlDoc);
 
         if (json.osm && json.osm.way) {
+          console.log({json});
           let ways = json.osm.way.flatMap(way => way.tag);
           let attributes = ways.map(tag => tag['@attributes']);
           const refs = attributes.filter(({k}) => k === "ref");
           const streets = refs.map(({v}) => v.replace(" ",""));
-          console.log(streets.pop());
           return streets.pop();
         }
       }
