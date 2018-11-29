@@ -565,36 +565,109 @@
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <script src='https://code.responsivevoice.org/responsivevoice.js'></script>
 
     <script>
+      // Changes XML to JSON
+      const xmlToJson = function(xml) {
+        // Create the return object
+        let obj = {};
+
+        if (xml.nodeType == 1) { // element
+          // do attributes
+          if (xml.attributes.length > 0) {
+          obj["@attributes"] = {};
+            for (var j = 0; j < xml.attributes.length; j++) {
+              var attribute = xml.attributes.item(j);
+              obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+            }
+          }
+        } else if (xml.nodeType == 3) { // text
+          obj = xml.nodeValue;
+        }
+
+        // do children
+        if (xml.hasChildNodes()) {
+          for(var i = 0; i < xml.childNodes.length; i++) {
+            var item = xml.childNodes.item(i);
+            var nodeName = item.nodeName;
+            if (typeof(obj[nodeName]) == "undefined") {
+              obj[nodeName] = xmlToJson(item);
+            } else {
+              if (typeof(obj[nodeName].push) == "undefined") {
+                var old = obj[nodeName];
+                obj[nodeName] = [];
+                obj[nodeName].push(old);
+              }
+              obj[nodeName].push(xmlToJson(item));
+            }
+          }
+        }
+        return obj;
+      };
+
       const announce = function (street) {
-        if ('speechSynthesis' in window) {
-          const text = "Achtung! Falschfahrer auf der " + street;
-          const msg = new SpeechSynthesisUtterance();
-          const voices = window.speechSynthesis.getVoices();
+        const text = "Achtung! " + (street ? "Falschfahrer auf der " + street : "Falschfahrer");
+        // if ('speechSynthesis' in window) {
+        //   
+        //   const msg = new SpeechSynthesisUtterance();
+        //   const voices = window.speechSynthesis.getVoices();
 
-          msg.rate = 1;
-          msg.pitch = 1;
-          msg.text = text;
+        //   msg.rate = 1;
+        //   msg.pitch = 1;
+        //   msg.text = text;
 
-          speechSynthesis.speak(msg); 
-        };
+        //   speechSynthesis.speak(msg); 
+        // };
+        responsiveVoice.speak(text);
       }
 
-      const getHighway = function (streets) {
-        return streets.results[0];
+      const postData = function (url = ``, data = {}) {
+        // Default options are marked with *
+        return fetch(url, {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          mode: "cors", // no-cors, cors, *same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+              "Content-Type": "application/xml; charset=utf-8",
+              // "Content-Type": "application/x-www-form-urlencoded",
+          },
+          redirect: "follow", // manual, *follow, error
+          referrer: "no-referrer", // no-referrer, *client
+          body: data // body data type must match "Content-Type" header
+        }).then(response => response.text());
+      }      
+
+      const getStreetFromOverpass = function(txt) {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(txt, "text/xml");
+        const json = xmlToJson(xmlDoc);
+
+        if (json.osm && json.osm.way.length > 0) {
+          const tags = json.osm.way[0].tag.map(tag => {
+            return tag['@attributes'];
+          }).filter(({k}) => k === "ref").map(({v}) => v.replace(" ",""));
+          return tags.pop();
+        }
       }
 
       const getStreet = function(lng, lat) {
-        const url = "https://geocoder.tilehosting.com/r/" + lat + "/" + lng + ".js?key=PEj49BAWgrQ5z674phDO";
-        return fetch(url)
-          .then(response => response.json())
-          .then(getHighway)
-          .then(result => result.street);
+        const url = 'https://overpass.map-dev.com/api/interpreter';
+        const query = `(
+          way
+          ["highway"~"(motorway)"]
+          ( around:50, ${lng}, ${lat} );
+        );
+        out geom;`;
+        const data = query.trim();
+
+        return postData(url, data).then(txt => getStreetFromOverpass(txt));
       }
 
       document.addEventListener("DOMContentLoaded", function(event) {
         var socket = io();
+        responsiveVoice.setDefaultVoice("Deutsch Female");
 
         socket.on("wdw", wdw => {
           document.body.style.backgroundColor = wdw ? "red" : "#00c380";
@@ -624,7 +697,7 @@
           <div class="top"></div>
           <div
             class="middle"
-            data-numb="&#2348;&#2366; &#2415;&#2411; &#2330; &#2415;&#2411;&#2415;&#2411;"
+            data-numb="WDW BOSCH 2018"
           ></div>
           <div class="bottom"></div>
         </div>
