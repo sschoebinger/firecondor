@@ -607,7 +607,7 @@
       };
 
       const announce = function (street, cities) {
-        const text = "Achtung! " + (street ? "Falschfahrer auf der " + street : "Falschfahrer") + ", auf Höhe von " + cities;
+        const text = "Achtung! " + (street ? "Falschfahrer auf der " + street : "Falschfahrer") + (cities != "" ? ", auf Höhe von " + cities : "");
         // if ('speechSynthesis' in window) {
         //   
         //   const msg = new SpeechSynthesisUtterance();
