@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server, { serveClient: false });
+const findcity = require("find-nearest-cities");
 
 app.use(express.json());
 
@@ -10,10 +11,23 @@ app.get("/", (req, res) => {
 });
 
 app.post("/sendPush", (req, res) => {
-  io.emit("wdw", req.body);
+  let push = req.body;
+  const cities = findcity(
+    req.body.location.gps.longitude,
+    req.body.location.gps.latitude
+  );
+  push["cities"] = cities.reduce(
+    (sum, city) => {
+      console.log(city);
+      sum.count++;
+      sum.text += city.name + " ";
+      return sum;
+    },
+    { count: 0, text: "" }
+  ).text;
+  io.emit("wdw", push);
   setTimeout(() => io.emit("wdw", undefined), 5000);
   res.send();
 });
-
 
 server.listen(process.env.PORT || 4000);

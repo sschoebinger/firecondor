@@ -606,8 +606,8 @@
         return obj;
       };
 
-      const announce = function (street) {
-        const text = "Achtung! " + (street ? "Falschfahrer auf der " + street : "Falschfahrer");
+      const announce = function (street, cities) {
+        const text = "Achtung! " + (street ? "Falschfahrer auf der " + street : "Falschfahrer") + (cities != "" ? ", auf Höhe von " + cities : "");
         // if ('speechSynthesis' in window) {
         //   
         //   const msg = new SpeechSynthesisUtterance();
@@ -676,7 +676,8 @@
           if (wdw) {
             const lng = wdw.location.gps.longitude;
             const lat = wdw.location.gps.latitude;
-            getStreet(lat, lng).then(announce);
+            const cities = wdw.cities;
+            getStreet(lng, lat).then((street) => announce(street, cities));
           }
         });
       });
