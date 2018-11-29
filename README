@@ -1,2 +1,1 @@
-Ebbo Home:
 curl -d '{"lng": 49.078717, "lat": 9.287066}' -H "Content-Type: application/json" -X POST http://localhost:4000/sendPush
