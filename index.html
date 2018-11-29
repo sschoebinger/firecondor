@@ -644,11 +644,13 @@
         const xmlDoc = parser.parseFromString(txt, "text/xml");
         const json = xmlToJson(xmlDoc);
 
-        if (json.osm && json.osm.way.length > 0) {
-          const tags = json.osm.way[0].tag.map(tag => {
-            return tag['@attributes'];
-          }).filter(({k}) => k === "ref").map(({v}) => v.replace(" ",""));
-          return tags.pop();
+        if (json.osm && json.osm.way) {
+          console.log({json});
+          let ways = json.osm.way.flatMap(way => way.tag);
+          let attributes = ways.map(tag => tag['@attributes']);
+          const refs = attributes.filter(({k}) => k === "ref");
+          const streets = refs.map(({v}) => v.replace(" ",""));
+          return streets.pop();
         }
       }
 
@@ -657,7 +659,7 @@
         const query = `(
           way
           ["highway"~"(motorway)"]
-          ( around:50, ${lng}, ${lat} );
+          ( around: 500, ${lng}, ${lat} );
         );
         out geom;`;
         const data = query.trim();
