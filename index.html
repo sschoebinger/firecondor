@@ -608,17 +608,6 @@
 
       const announce = function (street, cities) {
         const text = "Achtung! " + (street ? "Falschfahrer auf der " + street : "Falschfahrer") + (cities != "" ? ", auf Höhe von " + cities : "");
-        // if ('speechSynthesis' in window) {
-        //   
-        //   const msg = new SpeechSynthesisUtterance();
-        //   const voices = window.speechSynthesis.getVoices();
-
-        //   msg.rate = 1;
-        //   msg.pitch = 1;
-        //   msg.text = text;
-
-        //   speechSynthesis.speak(msg); 
-        // };
         responsiveVoice.speak(text);
       }
 
@@ -645,7 +634,6 @@
         const json = xmlToJson(xmlDoc);
 
         if (json.osm && json.osm.way) {
-          console.log({json});
           let ways = json.osm.way.flatMap(way => way.tag);
           let attributes = ways.map(tag => tag['@attributes']);
           const refs = attributes.filter(({k}) => k === "ref");
@@ -659,7 +647,7 @@
         const query = `(
           way
           ["highway"~"(motorway)"]
-          ( around: 500, ${lng}, ${lat} );
+          ( around: 500, ${lat}, ${lng} );
         );
         out geom;`;
         const data = query.trim();

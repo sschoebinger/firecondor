@@ -1,1 +1,1 @@
-curl -d '{"location": {"gps": {"longitude": 49.078717, "latitude": 9.287066}}}' -H "Content-Type: application/json" -X POST http://localhost:4000/sendPush
+curl -d '{"location": {"gps": {"longitude": 9.287066, "latitude": 49.078717}}}' -H "Content-Type: application/json" -X POST http://localhost:4000/sendPush

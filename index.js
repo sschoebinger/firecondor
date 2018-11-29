@@ -13,12 +13,11 @@ app.get("/", (req, res) => {
 app.post("/sendPush", (req, res) => {
   let push = req.body;
   const cities = findcity(
-    req.body.location.gps.longitude,
-    req.body.location.gps.latitude
+    req.body.location.gps.latitude,
+    req.body.location.gps.longitude
   );
   push["cities"] = cities.reduce(
     (sum, city) => {
-      console.log(city);
       sum.count++;
       sum.text += city.name + " ";
       return sum;
