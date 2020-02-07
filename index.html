@@ -1,6 +1,29 @@
 <html>
   <head>
     <style>
+      #overlay {
+        position: fixed;
+        display: block;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 2;
+        cursor: pointer;
+      }
+
+      #text{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        font-size: 50px;
+        color: white;
+        transform: translate(-50%,-50%);
+        -ms-transform: translate(-50%,-50%);
+      }
       body {
         margin: 0;
         color: #444;
@@ -607,7 +630,7 @@
       };
 
       const announce = function (street, cities) {
-        const text = "Achtung! " + (street ? "Falschfahrer auf der " + street : "Falschfahrer") + (cities != "" ? ", auf Höhe von " + cities : "");
+        const text = "Beware! " + (street ? "Wrong way driver on highway " + street : "Wrong way driver") + (cities != "" ? ", detection was on area of " + cities : "");
         responsiveVoice.speak(text);
       }
 
@@ -643,7 +666,7 @@
       }
 
       const getStreet = function(lng, lat) {
-        const url = 'https://overpass.map-dev.com/api/interpreter';
+        const url = 'https://lz4.overpass-api.de/api/interpreter';
         const query = `(
           way
           ["highway"~"(motorway)"]
@@ -663,7 +686,6 @@
 
       document.addEventListener("DOMContentLoaded", function(event) {
         var socket = io();
-        responsiveVoice.setDefaultVoice("Deutsch Female");
 
         if (isMobile()) {
           responsiveVoice.speak('');
@@ -679,9 +701,16 @@
           }
         });
       });
+
+      function ok() {
+        document.getElementById("overlay").style.display = "none";
+      }
     </script>
   </head>
   <body>
+    <div id="overlay" onclick="ok()">
+      <div id="text">Click to start!</div>
+    </div>
     <div class="car">
       <div class="body">
         <div class="mirror-wrap">
@@ -699,7 +728,7 @@
           <div class="top"></div>
           <div
             class="middle"
-            data-numb="WDW BOSCH 2018"
+            data-numb="WDW"
           ></div>
           <div class="bottom"></div>
         </div>
